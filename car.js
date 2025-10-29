@@ -17,8 +17,36 @@ class Car {
         this.carCorners = []; //[{x, y}... x4]
         this.rays = new Rays(this);
 
+        this.isBestCar = false;
+
+        this.brain = new NeuralNetwork(
+            [this.rays.numRays, 6, 4]
+        );
+
+        this.shouldDrawRays = false;
+        this.isCarDamaged = false;
+
+        this.startTime = performance.now();
+        this.travelStartX = x; // to measure distance from spawn
+
         this.color = 'red';
+
+        this.lastMoveTime = performance.now();
+        this.lastPos = { x, y };
+        this.idleThreshold = 2000; // 4 seconds
+        this.minMoveDistance = 15;  // movement threshold to count as "moving"
+
+        this.startTime = performance.now();
+        this.travelStartX = x; // to measure distance from spawn
     }
+
+    get performanceScore() {
+        const distance = this.pos.x - this.travelStartX;
+        const timeAlive = (performance.now() - this.startTime) / 1000; // in seconds
+        if (timeAlive <= 0) return 0;
+        return (distance * 0.9) + (distance / timeAlive * 0.1);
+    }
+
 
     draw() {
         const rad = this.angle * Math.PI / 180;
@@ -53,7 +81,40 @@ class Car {
         ctx.fill();
     }
 
-    isDamaged() {
+    useBrain() {
+        const offsets = this.rays.rays.map((r) => r == null ? 0 : 1 - r.iP.offset);
+        const outputs = NeuralNetwork.feedForward(offsets, this.brain);
+        K.u = outputs[0];
+        K.l = outputs[1];
+        K.r = outputs[2];
+        K.d = outputs[3];
+    }
+
+    checkIdleCar() {
+        const dx = this.pos.x - this.lastPos.x;
+        const dy = this.pos.y - this.lastPos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // If car moved a noticeable amount, reset idle timer
+        if (dist > this.minMoveDistance) {
+            this.lastMoveTime = performance.now();
+            this.lastPos = { ...this.pos };
+        }
+
+        // If it hasn't moved for 4 seconds, mark as damaged
+        if (performance.now() - this.lastMoveTime > this.idleThreshold) {
+            this.isCarDamaged = true;
+            return true;
+        }
+    }
+
+    checkBackwardsCar() {
+        if (this.pos.x <= -20 || this.pos.y <= -20 || this.pos.y >= c.height + 20) {
+            this.isCarDamaged = true;
+        }
+    }
+
+    checkIsDamaged() {
         let rc = this.carCorners;
         const carPoints = [
             { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
@@ -62,16 +123,16 @@ class Car {
         for (let cp of carPoints) {
             for (let mc of mapCoordinates) {
                 if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
+                    this.isCarDamaged = true;
                     return true;
                 }
             }
         }
+        this.checkIdleCar();
+        this.checkBackwardsCar();
         return false;
     }
 
-    killCar() {
-
-    }
 
     movement() {
         if (K.l) this.angle -= 3;
@@ -99,28 +160,33 @@ class Car {
                 mapCoordinates[i].x1 -= c.width;
                 mapCoordinates[i].x2 -= c.width;
             }
-            this.pos.x -= c.width;
-        } else if (this.pos.x < 0) {
-            for (let i = 0; i < mapCoordinates.length; i++) {
-                mapCoordinates[i].x1 += c.width;
-                mapCoordinates[i].x2 += c.width;
+            for (let car of cars) {
+                car.pos.x -= c.width;
             }
-            this.pos.x += c.width;
+        } else if (this.pos.x < 0) {
+            // for (let i = 0; i < mapCoordinates.length; i++) {
+            //     mapCoordinates[i].x1 += c.width;
+            //     mapCoordinates[i].x2 += c.width;
+            // }
+            // this.pos.x += c.width;
         }
     }
 
 
     update() {
         this.draw();
-        
-        let isDamaged = this.isDamaged();
-        if (!isDamaged) {
+        this.checkIsDamaged();
+        this.useBrain();
+
+        this.shouldDrawRays = this.isBestCar;
+
+        if (!this.isCarDamaged) {
             this.color = 'red';
             this.movement();
         } else {
             this.color = 'grey';
         }
-        
+
 
         this.rays.update();
     }

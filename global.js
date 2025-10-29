@@ -9,5 +9,8 @@ let ctx;
 let utils;
 
 let car;
+let cars = [];
 
 let shouldDraw = false;
+
+let bestCar;

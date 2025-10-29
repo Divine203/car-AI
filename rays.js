@@ -37,12 +37,12 @@ class Rays {
     constructor(car) {
         this.car = car;
 
-        this.defaultRayLength = 200;
-        this.rayLenth = 200;
+        this.defaultRayLength = 500;
+        this.rayLenth = 500;
         this.rays = [];
 
         this.FOV = 90; // field of view
-        this.numRays = 8;
+        this.numRays = 16;
         this.rayoffsetAngles = Array.from({ length: this.numRays }, (v, k) => (k * (this.FOV / this.numRays) - (this.FOV / 2))); // [-45, ...45]
     }
 
@@ -56,8 +56,11 @@ class Rays {
             ray.x2 = x2;
             ray.y2 = y2;
             ray = this.rayCastMap(ray, map.mapLines);
-            this.rays[i] = { d: ray.l, iP: ray.intersectionPoint, color: ray.lineIntersectionColor, wD: ray.wallData, fD: ray.floorData };
-            ray.drawRay(this.rayoffsetAngles[i], this.car.angle, this.car.w, this.car.h, this.car.pos.x, this.car.pos.y);
+            this.rays[i] = { d: ray.l, iP: ray.intersectionPoint ?? 0, color: ray.lineIntersectionColor, wD: ray.wallData, fD: ray.floorData };
+
+            if (this.car.shouldDrawRays) {
+                ray.drawRay(this.rayoffsetAngles[i], this.car.angle, this.car.w, this.car.h, this.car.pos.x, this.car.pos.y);
+            }
         }
     }
 
