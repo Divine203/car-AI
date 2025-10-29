@@ -6,7 +6,7 @@ c.height = 640;
 
 // car = new Car(50, 50, 50, 20);
 
-const N = 1000;
+const N = 1;
 cars = generateCars(N);
 
 function generateCars(N) {
@@ -39,9 +39,16 @@ function save() {
 
 function discard() {
     localStorage.removeItem("bestBrain");
+    localStorage.removeItem("bestScore");
 }
 
 bestCar = cars[0];
+
+function writeBestScore() {
+    ctx.fillStyle = 'white';
+    ctx.font = `13px consolas`
+    ctx.fillText(`${localStorage.getItem("bestScore") ?? 0}`, 20, 20);
+}
 
 const animate = () => {
     ctx.clearRect(0, 0, c.width, c.height);
@@ -60,6 +67,8 @@ const animate = () => {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, c.width, c.height);
 
+    writeBestScore();
+
     map.drawMap();
 
     for (let i = 0; i < cars.length; i++) {
@@ -69,6 +78,9 @@ const animate = () => {
     const allDamaged = cars.every(car => car.isCarDamaged);
     if (allDamaged) {
         console.log("All cars damaged! Saving best brain...");
+        
+        localStorage.setItem("bestScore", bestCar.performanceScore.toString());
+
         save();
         return;
     }

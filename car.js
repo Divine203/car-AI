@@ -6,8 +6,8 @@ class Car {
         this.w = w;
         this.h = h;
 
-        this.speed = 0.4;
-        this.friction = 0.05;
+        this.speed = 0.3;
+        this.friction = 0.06;
 
         this.angle = 0;
 
@@ -33,18 +33,20 @@ class Car {
 
         this.lastMoveTime = performance.now();
         this.lastPos = { x, y };
-        this.idleThreshold = 2000; // 4 seconds
+        this.idleThreshold = 5000; // 4 seconds
         this.minMoveDistance = 15;  // movement threshold to count as "moving"
 
         this.startTime = performance.now();
         this.travelStartX = x; // to measure distance from spawn
+
+        this.performanceScore = 0;
     }
 
-    get performanceScore() {
+    calcPerformanceScore() {
         const distance = this.pos.x - this.travelStartX;
         const timeAlive = (performance.now() - this.startTime) / 1000; // in seconds
-        if (timeAlive <= 0) return 0;
-        return (distance * 0.9) + (distance / timeAlive * 0.1);
+        if (timeAlive <= 0) this.performanceScore = 0;
+        this.performanceScore = (distance * 0.95) + (distance / timeAlive * 0.05);
     }
 
 
@@ -82,7 +84,7 @@ class Car {
     }
 
     useBrain() {
-        const offsets = this.rays.rays.map((r) => r == null ? 0 : 1 - r.iP.offset);
+        const offsets = this.rays.rays.map((r) => r == null ? 0 : 1 - r.iP?.offset ?? 0);
         const outputs = NeuralNetwork.feedForward(offsets, this.brain);
         K.u = outputs[0];
         K.l = outputs[1];
@@ -109,34 +111,54 @@ class Car {
     }
 
     checkBackwardsCar() {
-        if (this.pos.x <= -20 || this.pos.y <= -20 || this.pos.y >= c.height + 20) {
+        if (this.pos.x <= -20 || this.pos.y <= -20) {
             this.isCarDamaged = true;
         }
     }
 
     checkIsDamaged() {
-        // let rc = this.carCorners;
-        // const carPoints = [
-        //     { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
-        //     { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
-        // ];
-        // for (let cp of carPoints) {
-        //     for (let mc of mapCoordinates) {
-        //         if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
-        //             this.isCarDamaged = true;
-        //             return true;
-        //         }
-        //     }
-        // }
-        // this.checkIdleCar();
-        // this.checkBackwardsCar();
-        return false;
+        let rc = this.carCorners;
+        const carPoints = [
+            { x1: rc[0].x, y1: rc[0].y, x2: rc[1].x, y2: rc[1].y },
+            { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
+        ];
+        for (let cp of carPoints) {
+            for (let mc of mapCoordinates) {
+                if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
+                    this.isCarDamaged = true;
+                }
+            }
+        }
+        for (let ray of this.rays.rays) {
+            if(ray.iL <= 2) {
+                this.isCarDamaged = true;
+            }
+        }
+        this.checkIdleCar();
+        this.checkBackwardsCar();
+    }
+
+    checkRewardCollection() {
+        let rc = this.carCorners;
+        const carPoints = [
+            { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
+            { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
+        ];
+        for (let cp of carPoints) {
+            for (let i = 0; i < rewards.length; i++) {
+                if (utils.lineIntersectsCircle(cp.x1, cp.y1, cp.x2, cp.y2, rewards[i].x, rewards[i].y, 10)) {
+                    rewards.splice(i, 1);
+                    map.rewards = rewards;
+                    this.performanceScore += 1;
+                }
+            }
+        }
     }
 
 
     movement() {
-        if (K.l) this.angle -= 3;
-        if (K.r) this.angle += 3;
+        if (K.l) this.angle -= 5;
+        if (K.r) this.angle += 5;
 
         const rad = this.angle * Math.PI / 180;
 
@@ -163,6 +185,9 @@ class Car {
             for (let car of cars) {
                 car.pos.x -= c.width;
             }
+            for (let r of rewards) {
+                r.x -= c.width;
+            }
         } else if (this.pos.x < 0) {
             // for (let i = 0; i < mapCoordinates.length; i++) {
             //     mapCoordinates[i].x1 += c.width;
@@ -174,20 +199,21 @@ class Car {
 
 
     update() {
-        // this.draw();
-        // this.checkIsDamaged();
-        // // this.useBrain();
+        this.draw();
+        this.calcPerformanceScore();
+        this.checkIsDamaged();
+        this.checkRewardCollection();
+        this.useBrain();
 
-        // this.shouldDrawRays = this.isBestCar;
+        this.shouldDrawRays = this.isBestCar;
 
-        // if (!this.isCarDamaged) {
-        //     this.color = 'red';
-        //     this.movement();
-        // } else {
-        //     this.color = 'grey';
-        // }
+        if (!this.isCarDamaged) {
+            this.color = 'red';
+            this.movement();
+        } else {
+            this.color = 'grey';
+        }
 
-
-        // this.rays.update();
+        this.rays.update();
     }
 }

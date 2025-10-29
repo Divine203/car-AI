@@ -29,6 +29,12 @@ class Map {
             r.x -= globalOrigin.x;
             r.y -= globalOrigin.y;
         });
+        this.mapLines.forEach(m => {
+            m.x1 -= globalOrigin.x;
+            m.y1 -= globalOrigin.y;
+            m.x2 -= globalOrigin.x;
+            m.y2 -= globalOrigin.y;
+        });
         const mapLinesJsonString = JSON.stringify(this.mapLines);
         const nodesJsonString = JSON.stringify(this.nodes);
         const rewardsJsonString = JSON.stringify(this.rewards);
@@ -41,7 +47,7 @@ class Map {
 
         console.log("Nodes: ");
         console.log(nodesJsonString);
-        
+
         console.log("Rewards: ");
         console.log(rewardsJsonString);
 
@@ -120,7 +126,7 @@ class Map {
                 }
 
             }
-            if (isPlacingRewards) {
+            if (isPlacingRewards && !shouldDraw) {
                 let mouseX = e.clientX - c.getBoundingClientRect().left;
                 let mouseY = e.clientY - c.getBoundingClientRect().top;
 
@@ -198,7 +204,7 @@ class Map {
         for (let r of this.rewards) {
             ctx.fillStyle = 'orange';
             ctx.beginPath();
-            ctx.arc(r.x, r.y, 20, 0, 2 * Math.PI);
+            ctx.arc(r.x, r.y, 10, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -230,7 +236,7 @@ class Map {
 
 
         if (this.hoveredOnAline) {
-            if (K.x.pressed) {
+            if (K.x) {
                 this.mapLines = this.mapLines.filter(line => line !== this.currentHoveredLine);
                 this.hoveredLine = null;
             }

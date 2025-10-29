@@ -59,10 +59,14 @@ const controls = () => {
             
             case 'c':
                 shouldDraw = !shouldDraw;
+                isPlacingRewards = false;
 
             case 'r':
                 isPlacingRewards = !isPlacingRewards;
-                shouldDraw = !isPlacingRewards;
+                shouldDraw = false;
+
+            case 't':
+                discard();
         }
     });
 

@@ -8,6 +8,7 @@ class Ray {
         this.angle = null;
         this.l;
         this.intersectionPoint = null;
+        this.intersectionLength = null;
     }
 
     drawRay(angleOffset, pAngle, pWidth, pHeight, pX, pY) { // angleOffset is in degrees
@@ -37,12 +38,12 @@ class Rays {
     constructor(car) {
         this.car = car;
 
-        this.defaultRayLength = 500;
-        this.rayLenth = 500;
+        this.defaultRayLength = 1000;
+        this.rayLenth = 1000;
         this.rays = [];
 
-        this.FOV = 120; // field of view
-        this.numRays = 20;
+        this.FOV = 180; // field of view
+        this.numRays = 36;
         this.rayoffsetAngles = Array.from({ length: this.numRays }, (v, k) => (k * (this.FOV / this.numRays) - (this.FOV / 2))); // [-45, ...45]
     }
 
@@ -56,7 +57,7 @@ class Rays {
             ray.x2 = x2;
             ray.y2 = y2;
             ray = this.rayCastMap(ray, map.mapLines);
-            this.rays[i] = { d: ray.l, iP: ray.intersectionPoint ?? 0, color: ray.lineIntersectionColor, wD: ray.wallData, fD: ray.floorData };
+            this.rays[i] = { d: ray.l, iP: ray.intersectionPoint, iL: ray.intersectionLength, color: ray.lineIntersectionColor, fD: ray.floorData };
 
             if (this.car.shouldDrawRays) {
                 ray.drawRay(this.rayoffsetAngles[i], this.car.angle, this.car.w, this.car.h, this.car.pos.x, this.car.pos.y);
@@ -81,6 +82,7 @@ class Rays {
         });
 
         ray.l = this.defaultRayLength;
+        ray.intersectionLength = Math.ceil(minDistance);
 
         let { x1, y1, x2, y2 } = this.calcRayPoints(ray.angle, ray.l);
         ray.x1 = x1;
