@@ -16,6 +16,8 @@ class Car {
 
         this.carCorners = []; //[{x, y}... x4]
         this.rays = new Rays(this);
+
+        this.color = 'red';
     }
 
     draw() {
@@ -28,7 +30,7 @@ class Car {
             { x: hw, y: -hh },
             { x: hw, y: hh },
             { x: -hw, y: hh }
-        ]; 
+        ];
 
         const cx = this.pos.x + this.w / 2;
         const cy = this.pos.y + this.h / 2;
@@ -40,15 +42,35 @@ class Car {
 
         this.carCorners = rc;
 
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = this.color;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(rc[0].x, rc[0].y);
-        for(let i = 1; i < rc.length; i++){
+        for (let i = 1; i < rc.length; i++) {
             ctx.lineTo(rc[i].x, rc[i].y);
         };
         ctx.lineTo(rc[0].x, rc[0].y);
         ctx.fill();
+    }
+
+    isDamaged() {
+        let rc = this.carCorners;
+        const carPoints = [
+            { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
+            { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
+        ];
+        for (let cp of carPoints) {
+            for (let mc of mapCoordinates) {
+                if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    killCar() {
+
     }
 
     movement() {
@@ -89,8 +111,16 @@ class Car {
 
 
     update() {
-        this.movement();
         this.draw();
+        
+        let isDamaged = this.isDamaged();
+        if (!isDamaged) {
+            this.color = 'red';
+            this.movement();
+        } else {
+            this.color = 'grey';
+        }
+        
 
         this.rays.update();
     }

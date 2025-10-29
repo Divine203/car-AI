@@ -21,7 +21,7 @@ class Utils {
     }
 
     checkLineIntersection(a, b) {
-        const BUFFER = 1; // Slightly expand collision area
+        const BUFFER = 0.2; // Slightly expand collision area
 
         const det = (b.x2 - b.x1) * (a.y2 - a.y1) - (b.y2 - b.y1) * (a.x2 - a.x1);
         if (Math.abs(det) < 0.0001) return false; // Parallel lines
@@ -30,8 +30,6 @@ class Utils {
         const gamma = ((a.y1 - a.y2) * (b.x2 - a.x1) + (a.x2 - a.x1) * (b.y2 - a.y1)) / det;
 
         let result = (-BUFFER <= lambda && lambda <= 1 + BUFFER) && (-BUFFER <= gamma && gamma <= 1 + BUFFER);
-
-        // console.log(result);
 
         return result;
     }
