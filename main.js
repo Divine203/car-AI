@@ -4,16 +4,16 @@ ctx = c.getContext('2d');
 c.width = 1080;
 c.height = 640;
 
-car = new Car(50, 50, 50, 20);
+// car = new Car(50, 50, 50, 20);
 
-const N = 1;
+const N = 1000;
 cars = generateCars(N);
 
 function generateCars(N) {
     const cars = [];
 
     for (let i = 1; i <= N; i++) {
-        cars.push(new Car(50, 50, 50, 20));
+        cars.push(new Car(320, 300, 50, 20));
     }
     return cars;
 }

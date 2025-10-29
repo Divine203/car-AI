@@ -32,6 +32,40 @@ class Utils {
         );
     }
 
+    lineIntersectsCircle(x1, y1, x2, y2, cx, cy, r) {
+        // Line start to end vector
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+
+        // Vector from line start to circle center
+        const fx = x1 - cx;
+        const fy = y1 - cy;
+
+        const a = dx * dx + dy * dy;
+        const b = 2 * (fx * dx + fy * dy);
+        const c = (fx * fx + fy * fy) - r * r;
+
+        let discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0) {
+            // No intersection
+            return false;
+        }
+
+        discriminant = Math.sqrt(discriminant);
+
+        const t1 = (-b - discriminant) / (2 * a);
+        const t2 = (-b + discriminant) / (2 * a);
+
+        // Check if either intersection point lies within the line segment
+        if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
     isPointNearLineSegment(px, py, x1, y1, x2, y2, tolerance) { // tolerance is margin of error acceptable
         const A = px - x1;
         const B = py - y1;

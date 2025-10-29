@@ -41,8 +41,8 @@ class Rays {
         this.rayLenth = 500;
         this.rays = [];
 
-        this.FOV = 90; // field of view
-        this.numRays = 16;
+        this.FOV = 120; // field of view
+        this.numRays = 20;
         this.rayoffsetAngles = Array.from({ length: this.numRays }, (v, k) => (k * (this.FOV / this.numRays) - (this.FOV / 2))); // [-45, ...45]
     }
 

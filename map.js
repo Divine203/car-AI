@@ -19,21 +19,31 @@ class Map {
         this.scrollSpeed = 12;
         this.mapLines = mapCoordinates;
         this.nodes = nodeCoordinates;
+        this.rewards = rewards;
         this.storeFloorLines = true;
         this.floorHorizontalLines = [];
     }
 
     saveMap() {
+        this.rewards.forEach(r => {
+            r.x -= globalOrigin.x;
+            r.y -= globalOrigin.y;
+        });
         const mapLinesJsonString = JSON.stringify(this.mapLines);
         const nodesJsonString = JSON.stringify(this.nodes);
+        const rewardsJsonString = JSON.stringify(this.rewards);
         localStorage.setItem("map", mapLinesJsonString);
         localStorage.setItem("nodes", nodesJsonString);
+        localStorage.setItem("rewards", rewardsJsonString);
 
-        console.log("Map Lines:");
+        console.log("Map Lines: ");
         console.log(mapLinesJsonString);
 
         console.log("Nodes: ");
         console.log(nodesJsonString);
+        
+        console.log("Rewards: ");
+        console.log(rewardsJsonString);
 
         alert('Map saved, check console!');
     }
@@ -72,7 +82,7 @@ class Map {
     mapCreator() {
         document.addEventListener('mousedown', (e) => {
             this.currentLine.texture = this.currentTexture;
-            if (shouldDraw) {
+            if (shouldDraw && !isPlacingRewards) {
                 let mouseX = e.clientX - c.getBoundingClientRect().left;
                 let mouseY = e.clientY - c.getBoundingClientRect().top;
 
@@ -110,9 +120,15 @@ class Map {
                 }
 
             }
+            if (isPlacingRewards) {
+                let mouseX = e.clientX - c.getBoundingClientRect().left;
+                let mouseY = e.clientY - c.getBoundingClientRect().top;
+
+                this.rewards.push({ x: mouseX, y: mouseY });
+            }
         });
         document.addEventListener('mousemove', (e) => {
-            if (shouldDraw) {
+            if (shouldDraw && !isPlacingRewards) {
                 let mouseX = e.clientX - c.getBoundingClientRect().left;
                 let mouseY = e.clientY - c.getBoundingClientRect().top;
 
@@ -178,6 +194,15 @@ class Map {
 
     }
 
+    drawRewards() {
+        for (let r of this.rewards) {
+            ctx.fillStyle = 'orange';
+            ctx.beginPath();
+            ctx.arc(r.x, r.y, 20, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+
     drawMap() {
         for (let j = 0; j < this.nodes.length; j++) {
             this.drawNode(this.nodes[j]);
@@ -201,6 +226,7 @@ class Map {
             this.drawLine(this.hoveredLine);
         }
 
+        this.drawRewards();
 
 
         if (this.hoveredOnAline) {
@@ -219,6 +245,7 @@ class Map {
 
         // move everything
         if (K.S) {
+            globalOrigin.y -= this.scrollSpeed;
             for (let i = 0; i < this.mapLines.length; i++) {
                 this.mapLines[i].y1 = this.mapLines[i].y1 - this.scrollSpeed;
                 this.mapLines[i].y2 = this.mapLines[i].y2 - this.scrollSpeed;
@@ -226,10 +253,12 @@ class Map {
             for (let j = 0; j < this.nodes.length; j++) {
                 this.nodes[j].y = this.nodes[j].y - this.scrollSpeed;
             }
-            car.pos.y -= this.scrollSpeed;
-
+            for (let k = 0; k < this.rewards.length; k++) {
+                this.rewards[k].y -= this.scrollSpeed;
+            }
 
         } else if (K.W) {
+            globalOrigin.y += this.scrollSpeed;
             for (let i = 0; i < this.mapLines.length; i++) {
                 this.mapLines[i].y1 = this.mapLines[i].y1 + this.scrollSpeed;
                 this.mapLines[i].y2 = this.mapLines[i].y2 + this.scrollSpeed;
@@ -237,9 +266,12 @@ class Map {
             for (let j = 0; j < this.nodes.length; j++) {
                 this.nodes[j].y = this.nodes[j].y + this.scrollSpeed;
             }
-            car.pos.y += this.scrollSpeed;
+            for (let k = 0; k < this.rewards.length; k++) {
+                this.rewards[k].y += this.scrollSpeed;
+            }
 
         } else if (K.D) {
+            globalOrigin.x -= this.scrollSpeed;
             for (let i = 0; i < this.mapLines.length; i++) {
                 this.mapLines[i].x1 = this.mapLines[i].x1 - this.scrollSpeed;
                 this.mapLines[i].x2 = this.mapLines[i].x2 - this.scrollSpeed;
@@ -247,9 +279,11 @@ class Map {
             for (let j = 0; j < this.nodes.length; j++) {
                 this.nodes[j].x = this.nodes[j].x - this.scrollSpeed;
             }
-            car.pos.x -= this.scrollSpeed;
-
+            for (let k = 0; k < this.rewards.length; k++) {
+                this.rewards[k].x -= this.scrollSpeed;
+            }
         } else if (K.A) {
+            globalOrigin.x += this.scrollSpeed;
             for (let i = 0; i < this.mapLines.length; i++) {
                 this.mapLines[i].x1 = this.mapLines[i].x1 + this.scrollSpeed;
                 this.mapLines[i].x2 = this.mapLines[i].x2 + this.scrollSpeed;
@@ -257,7 +291,9 @@ class Map {
             for (let j = 0; j < this.nodes.length; j++) {
                 this.nodes[j].x = this.nodes[j].x + this.scrollSpeed;
             }
-            car.pos.x += this.scrollSpeed;
+            for (let k = 0; k < this.rewards.length; k++) {
+                this.rewards[k].x += this.scrollSpeed;
+            }
         }
     }
 }

@@ -115,21 +115,21 @@ class Car {
     }
 
     checkIsDamaged() {
-        let rc = this.carCorners;
-        const carPoints = [
-            { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
-            { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
-        ];
-        for (let cp of carPoints) {
-            for (let mc of mapCoordinates) {
-                if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
-                    this.isCarDamaged = true;
-                    return true;
-                }
-            }
-        }
-        this.checkIdleCar();
-        this.checkBackwardsCar();
+        // let rc = this.carCorners;
+        // const carPoints = [
+        //     { x1: rc[0].x, y1: rc[1].y, x2: rc[1].x, y2: rc[1].y },
+        //     { x1: rc[2].x, y1: rc[2].y, x2: rc[0].x, y2: rc[0].y },
+        // ];
+        // for (let cp of carPoints) {
+        //     for (let mc of mapCoordinates) {
+        //         if (utils.findIntersection(cp.x1, cp.y1, cp.x2, cp.y2, mc.x1, mc.y1, mc.x2, mc.y2)) {
+        //             this.isCarDamaged = true;
+        //             return true;
+        //         }
+        //     }
+        // }
+        // this.checkIdleCar();
+        // this.checkBackwardsCar();
         return false;
     }
 
@@ -174,20 +174,20 @@ class Car {
 
 
     update() {
-        this.draw();
-        this.checkIsDamaged();
-        this.useBrain();
+        // this.draw();
+        // this.checkIsDamaged();
+        // // this.useBrain();
 
-        this.shouldDrawRays = this.isBestCar;
+        // this.shouldDrawRays = this.isBestCar;
 
-        if (!this.isCarDamaged) {
-            this.color = 'red';
-            this.movement();
-        } else {
-            this.color = 'grey';
-        }
+        // if (!this.isCarDamaged) {
+        //     this.color = 'red';
+        //     this.movement();
+        // } else {
+        //     this.color = 'grey';
+        // }
 
 
-        this.rays.update();
+        // this.rays.update();
     }
 }
