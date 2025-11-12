@@ -4,9 +4,7 @@ ctx = c.getContext('2d');
 c.width = 1080;
 c.height = 640;
 
-// car = new Car(50, 50, 50, 20);
-
-const N = 1;
+const N = 400;
 cars = generateCars(N);
 
 function generateCars(N) {

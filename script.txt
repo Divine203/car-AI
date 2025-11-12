@@ -1,0 +1,178 @@
+Title: I Built a neural network from scratch to make a car AI
+---------------------------------------------------------------------------------------------------------
+
+
+This is a neural network and we're going to build one from scratch to make a self driving car AI.
+
+And from scratch i mean, no libraries or frameworks, just math and ehn em Javascript.  
+
+<skit>
+Me 2: Why would you do this? 
+Me 1: Well It's quite simple
+</skit>
+
+*MEME* I don't want peace, I want problems always.
+
+
+Now Just like the beginning, the earth was without form and void and darkness was on the face of the deep. 
+
+We begin with a blank canvas. 
+
+Now the car in question is just a rectangle, I know, i tried to make a tesla it didn't work.
+
+But instead of just drawing one directly, we're gonna construct it using 4 lines. This is so later when we make the AI. we can tell when the car gets damaged, using line intersections.
+
+
+As for the movement, There are 4 variables to work with, the car's position, angle, velocity and friction.
+
+The angle determines the car rotation, 
+
+We increase the velocity vector by the angle the car is facing, 
+
+Then we add friction so we can stop the car from moving, by reducing the velocity by a certain fraction each frame. 
+
+And finally we increment the car's position by the velocity.
+ 
+*oh crap* <bug>
+
+<bug fix montage>
+
+And we have a moving car, so far so good.
+
+Next we need like an actual track for the car to drive around. I want to make the most insane, wrist bending, diabolical track known to man kind, 
+
+but If I were to code it by hand we're gonna be here all day. So we need a map editor, luckily in my making a horror game video. Which no one watched by the way. I actually made one...surprisingly.
+
+So I'm just going to yoink that code...obviously, what you think i was gonna write the whole thing from scratch again. 
+
+*montage of me coding*
+
+I'm just kidding, i re used the code, just had to make a few tweeks here there and voila. 
+
+well i still have to make the track
+
+*while I'm showing the track making montage*
+
+I want to push the limits of the AI, so I'm going to add as many curves and turns as possible. 
+
+Pretty sick. 
+
+
+Now let's get to the juicy parts, building the AI
+
+We're going to be using a Neural network and genetic algorithms to train the AI.
+
+Neural networks are designed to mimic the human brain, they contain a bunch of neurons that learn to activate/deactivate based on events that happens.
+
+In short, its the basis of how we learn to do anything.
+
+In computers it's the same idea, except it's just math. 
+
+Looks scary, i know.
+
+But just think of it like a giant function. 
+
+Takes in inputs and gives out an output, Difference being you don't write the logic of the function, the Network learns to do it for you. 
+
+How does it do that? well, it uses somethings called weights and biases. 
+
+A network consists of many neurons, and each neuron has a weight associated with it, the weight scales the input by multiplying itself with it, to tell us how important the input is. 
+
+The bias is a threshold that helps the neuron decide when to activate. 
+
+So Multiply inputs by weights, sum it all together, add the bias and you get the output.
+
+The whole idea is to keep tuning the weights and biases until the desired output is given. 
+
+Now imagine instead of just one neuron we have hundreds of them, each interconnected and seperated into layers. Starting from the input layer, the hidden layer and the output layer. 
+
+Each neuron being the weighted sum of the previous layer. You get something quite powerful.
+
+Me2: But what exactly will be the inputs.
+Me1: I was getting to that.
+
+The inputs are going to be what the car sees each frame. So we basically need to make some kind of way for the car to visulaize the road infront of it. 
+
+And we do that by Raycasting.
+
+Raycasting, is basically just finding the point of intersection between to lines. 
+
+The idea is to cast a ray from the front of the car all the way to a finite length, and then check what point the ray intersects with the road.
+
+The formula looks like this, and the code looks like this.
+
+the point of intersection will be our input. At least one of them.
+
+Cause were going to cast multiple rays within a field of view with each ray's point of intersection being an input for the network.
+
+As for the outputs it will just be our movement controls.
+
+I have made raycasters in the past so coding this up was quite straightforward.
+
+
+Side note for the nerds watching this, we're not going to be using fancy algorithms for activation, cause we actually don't need it in this case. Our genetic algorithm will be using mutation and natural selection.
+
+We don't need fancy back propagation and checking where we messed up, we just keep evolving each generation. 
+
+So no sigmoid, no ReLu. Just this. 
+
+*shows the code*
+
+Now what the heck is a genetic algorithm?
+
+Say for example you want a baby that can do a backflip, you'd train it by making a bunch of babies and have them try out random movement, after a period of time you pick the baby that was closest to doing a backflip and discard the rest, 
+
+You then make copies of that baby for the next generation. You make them do the same thing, pick the best one for the next generation and you keep repeating this process till you have a baby that can do a pretty sick backflip. 
+
+Actually, i feel this should be a normalized way of raising kids.
+
+Now using this logic, we're going to make a bunch of cars, with their goal being to get to the end of the track as fast as possible without crashing. 
+
+Pretty straightforward.
+
+We also need a way to tell which cars are doing well so we can pick the best one for the each generation, we do this by creating something called a fitness function.
+
+Basically a fitness function evaluates how each car is doing by giving them a score every frame.  
+ 
+In our case we want to encourage the cars that go furthest to the right in the shortest amount of time.
+
+while eliminating any cars that crash or stay idle for too long.
+
+However getting to the end is still the main goal, so we're going to make the distance travelled account for 95% of the fitness score and time spent takes the remaining 5%.
+
+Coding this up was pretty tricky. But I'm just gonna pretend it was straightforward and spare you the details.
+
+
+*shows code*
+
+Alright let's run it and see. 
+
+They start off really stupid at the begining cause they're mostly just moving randomly. But over time they starting getting a grasp of what they should and shouldn't do.
+
+*montage of car learning with text commentary*.
+
+
+
+We did it, 
+
+If you leave it long enough they start driving faster to get a better score.
+
+Can't lie i was worried they wouldnt learn to take the left turns, cause they're only encouraged to move right, i remembered code bullet had to add some reward pickups in his AI, just to encourage them to take those nackward paths. 
+
+But it learnt that on it's own, which was a pleasant surprise.
+
+
+
+This video was heavily inspired by the legendary programmer, Radu. 
+
+He has an entire series on self driving car AI where he takes the prodject to a whole new level. And he's stuff is just wizardry, the guy's insanely underrated.
+
+It definitely would have taken me longer to learn this without his videos. So please check him out.
+
+
+Anyways that's all i have.
+
+As usual the source code will be in the description,
+
+Thanks for watching, I love you but God loves you much more. Catch you in the next one.
+
