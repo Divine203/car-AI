@@ -1,0 +1,376 @@
+GRAPHICS ENGINE IN WEBGL and Javascript Youtube video
+
+///// INTRO /////
+This is a Graphics Engine, made from scratch using Javascript and WebGL. 
+You're probably used to Graphics Engines being rendered primarily with low level languages. But in this video, we're going to try something different by using a not so commonly used language, along with a Graphics API to utilize the GPU. 
+We're going to start simple, from hello triangle with basic shader code and slowly building our way up to, 3D objects, textures, transformations, cameras, 3d models and lighting. 
+We're going to be using only math equations and some GPU coding magic to simulate real 3D graphics.
+
+//// BODY /////
+We'll start by setting up our canvas with the webgl context and displaying a blank space.
+
+To no surprise Graphics programming has many parts to it. But the foundation of it all is a little something called shaders. 
+Shaders in simple terms are just programs that run on the GPU. Theyre written in a language called GLSL and are split mainly into 2 parts. The vertex shader and the fragment shader.
+
+Think of it like a Brush and a Color pallet. The vertex shader tells the GPU where to draw something, the Fragment shader tells the GPU what color to draw. 
+A bit of an oversimplification but that's basically the gist.
+
+Together they make something called a Shader Program. The vertex shader runs once for every vertex in your world, while the fragment shader runs for every pixel inside the shapes those vertices form, like a triangle.
+
+We use them by passing data of our vertices and colors from our javascript to the vertex shader, the vertex shader then shares the data to the fragment shader, which does the coloring calculations.
+
+At the start, you’ll probably only need one shader program to get things working. Later on, as you add more effects like lighting and textures, you can create additional shaders for different purposes. 
+
+For my engine we'll only write 2 shader programs, 1 for rendering objects in our world, and the other for light sources.
+
+Sounds confusing? Don't worry.
+
+
+Let's start with writing a simple shader code to draw a triangle.
+
+For syntax highlighting we'll write our shaders as inline scripts in the HTML.
+
+the vertex shader will take in a position vector and a color vector, position being xyz, color being rgba. 
+
+along with an out variable to pass the final color to the fragment shader.
+
+we set up our main function.
+
+we assign the final position of our vertex in clip space, using the built in variable gl_Position. 
+It takes only vec4 values, so we'll wrap our vec3 position in a vec4, and pass in 1 as the 4th value. This is used later by the GPU for perspective division, so it knows where on our canvas the vertex ends up.
+lastly we assign the given color to the final color.
+
+
+we make another script for our fragment shader.
+we need to declare a floating point precision otherwise we get an error, medium is usually the standard.
+we take in our final color from the vertex shader, declare our final color.
+And we just set our final color to the given color.
+
+
+In our javascript we create an array of vertices for our triangle, in clipspace coordinates.
+
+we write a function to compile our shaders.
+
+we create something called a buffer which is just a container to store our data for the GPU. Think of it like a lunch box of numbers, we pack the lunch, the GPU eats.
+
+we assign our vertices to the buffer.
+
+we create another array for each vertex color.
+
+create a buffer for it to store the data.
+
+
+we compile our shaders.
+
+create a shader program. 
+
+Link our shaders to the program.
+
+add a little check condition incase of errors 
+
+then we just use the program. 
+
+The variables we created in our shaders each have unique attributes called locations, think of them as gates or portals to the underworld (the GPU of course)
+
+so we need to get these locations based on the variable names we gave them and send our data.
+
+we bind our position location to the vertex buffer.
+
+we then tell the GPU how we want them to be read. index is the location itself with the data, size is how many in the array it should take per vertex, that's 3 (x, y, z). the type is float.
+
+it's already in float so we dont need to normalize it. Then the rest are just specifics on how it should be read, incase if we have some numbers we want the GPU to skip. We want everything to be read as it is. So we set them to 0.
+
+
+we do the exact same thing for colors. 
+
+and then finally we draw in render loop. 
+
+And look at that, our first triangle. Pretty sick. 
+
+
+I know, its a lot of work for one triangle. But once you get this down, everything else is just building untop of this.
+
+Now triangles are cool but i want to make something in 3D.
+
+Rendering 3D objects is pretty much the same, only difference is the change of vertices.
+
+
+a cube for instance, has 6 faces. For each face we have to create 6 vertices, each with their xyz coordinate.
+
+*sarcastic baby tone voice lol* => "But Divine, a square has 4 points not 6". 
+
+Yes, but sadly the GPU only understands triangles. A square can be divided into 2 triangles with 3 vertices each, making 6 for one face of the cube. 
+
+We unfortunately have to account for all 6 even if some of the values are repeated. You complete idio...
+
+
+For colors we want each face to have a distinct color. So we give all 6 vertices for each face, the same color. Thats way too long to write down. 
+
+So ill, just create a matrix of each face's color. 
+
+Then just repeat each one six times, and spread the values in an array.
+
+
+
+And we have a cube. 
+
+Well sort of its a bit distorted cause we don't have a projection matrix but we'll get to that in a bit, also we can't see the other sides yet, cause we need some sort of rotation happening. shit
+
+
+This is where matrix multiplication comes in. In computer graphics there are 3 major matrices you work with
+
+First is the model matrix, think of it like a makeup artist, you just stand there and they apply all sorts of transformations to you. Things like rotation, scaling and positioning.
+
+Next is the view matrix, this is like a cameraman. They don’t touch you at all, they just move around the stage, step closer, step back, or change their angle. This decides what part of the scene actually shows up in the screen.
+
+Finally, the projection matrix, this is like the lens you put on the camera — wide angle, zoomed in, or even fish-eye. It decides how the 3D world gets squashed onto the 2D screen.
+
+
+In our vertex shader we need to create variables for all 3 matrixes.
+
+Then in our final gl_Position we multiply all 3 of them with our vertex position. The order we multiply is also important.
+
+we first apply our lenses, then set the camera, apply the makeup and lastly set our position.    
+
+In concept its actually meant to be in reverse but because of how matrix math works, we have to write it this way instead.
+
+In our Javascript, i really don't want to go through the pain of doing matrix calculations by hand. So i'll be using a library, called gl-matrix, they have some built in matrix functions and vectors we can use. 
+
+Just to make our code alot more easy to manage.
+
+We can actually wrap our cube code into a function, and just store essential data in a cube object.
+
+This is also where we apply our model matrix. 
+
+Outside the function, we create the cube, 
+
+set up our view matrix and projection matrix
+
+then use this function to apply our perspective. 
+
+Our field of view will be 45 deg but in radians. ill ascpect ratio will be the canvas width/ canvas height and the rest are our near plane and far plane values respectively, meaning any thing closer than 0.1 or farther than 10 will be clipped.
+
+we link everything to our locations in the shaders.
+
+create an angle variable.
+
+in our render loop we increment our angle.
+
+initiate the cube.
+
+we apply our makeup, we apply the translations first before rotations. i'll set the cube z coordinate to -7 so its not too close to the camera.
+
+we apply some x and y rotations.
+
+we finally send all matrixes to their respective shader locations
+
+and finally we draw, 36 cause thats how many vertices our cube has. you can Do the math (meme sound effect.)
+
+
+
+And look at that a spinning cube.
+
+Now Lets add texture to it.
+
+Textures are mapped on 3d objects by passing their edges as UV coordinates for each vertex of that object.  
+
+0, 0 being bottom left, 1,1 beign bottom right and so on.
+
+
+We first need to create locations in our shaders for texture instead of a color.
+
+then all we have to do is create an array of this UV coordinate values in the order of their respective vertices. 
+
+initiate our textures, using GL functions, send the data to our texture location and voila.
+
+
+Now lets try add proper camera movement.
+
+The goal is to simulate a human walking in a 3d space.
+
+to do this there are 4 main variables to work with.
+
+position where the person is. 
+
+direction where they're facing.
+
+and finally their head rotations, we'll call this pitch and yaw. Pitch for vertical, yaw for horizontal.
+
+we actually don't give yaw 0 at first cause by default it looks towards the right of the x axis cause its horizontal, what we actually want is for it to look towards the Z coordinate, meaning rotating it backwards -90 degrees.
+
+so we instead set its initial value to -pi divided by 2, meaning -90 degrees.
+
+
+
+next we listen for some keyboard inputs
+
+we create a velocity variable for speed.
+
+then we create a function that makes changes to the variables based on the key presses.
+
+our pitch and yaw determines what direction the camera is facing. so we need to convert their values to direction vectors using simple triginometric formulas. 
+
+But instead of adding the pitch, we'll actually leave it as 0. If we don't then we'll be flying upwards when we look up, which isn't how...well, walking works.
+
+we also need a strafe direction variable, for moving left and right. This is so we can keep track of where our left and right directions are regardless of where we're facing.
+
+The rest is straightforward, we just scale our directions and add to our positions based on these variables, and our movement velocity.
+
+then we add 4 more controls for adjusting our yaw and pitch.
+
+
+then in our loop we create a target which is just a point in front of the camera. 
+
+lastly we just build our view matrix around everything. the output, our eye position, where the eye is looking at. and what direction is up which is the y axis. 
+
+And we have a working camera. Pretty sick.
+
+
+Now We have to do some code refactoring, cause having everything in just one file, is getting way too chaotic.
+
+
+Don't worry about it tho. We're just making more script files and seperating parts of the code based on concerns.
+
+and look at that we have a much more refined code base. 
+
+Now similar to modern 3d libraries we have a cube class. it has 3 functions one for initializing shaders, another for initializing buffers and a draw function. The first run once at run time the draw runs in our game loop.
+
+I then went on to make a similar class called planes which is just a rectangle, for rendering things like floors and ceilings. It's just one face of a cube so its code is straightforward.
+
+We also have a scene class to house and render all objects of our world.    
+
+A file to store all our global variables, a file for controls, a utility file for functions like compiling shaders and loading textures.
+
+and lastly our main file. 
+
+this is were construct our world objects and run our engine loop.
+
+now  wa can render as many objects as we want.
+
+
+Now when i said i made this from scratch, I literally meant it. This entire structure is written by hand, no blender no nothing, and not because i don't want to, I just dont know how to use these softwares.
+
+I've literally never touched blender before in my life.
+
+So it took me like 2 days, but i made something that looked somewhat decent for the video.
+
+After i was done, i noticed the camera felt a little...stiff, like were sliding on ice instead of walking. 
+
+Modern fps games have this sway left and right movement when you move around, they do this to make the movement feel more realistic, like your really walking
+
+
+And Its actually quite simple how this is done.
+
+We just need a function that adds a bob and sway movement to our camera.
+
+We use delta time to control the speed.
+
+Ofcourse we only want it to happen when we move.
+
+then we just use sin cos of the variable to create wave like movement up/down left and right. 
+
+we then clone our camera position and add the effect. we then return the new position.
+
+
+then in our game loop we just call the effect, and replace target with the new position.
+
+Now our movements feel alot more alive.
+
+
+It gets boring just staring at cubes and planes all day. So lets add a 3d model. 
+
+I found this cool model of Jesus...my lord and saviour on this website cgtrader, they provide a bunch of really nice models for free, so definitely check them out.
+
+
+
+Now big question, how to load 3d models.
+
+well 3d models come in different file types. Obj being the most common and the one we'll be using. Its simple, I mean you can literally open it on notepad, and it has everything you need, vertices, UVs, normals etc. 
+
+Except animations you might want to use a different extension for that.
+
+
+So all we need is a model class similar to our cube and planes, but this time we read the vertices and UVs from the obj file rather than hard coding it ourselves. 
+
+The obj data is arranged in a recognizable pattern, so we just use that to extract the numbers.
+
+I'm not sure what the size of the model is, so we won't scale it just yet.
+
+
+short skit
+
+- Wait, where is it?
+- *JESUS BIG IN THE SKY WITH DRAMATIC MUSIC*
+- *comedic cut*
+- yeah that's way too big.
+
+*fix model size and position it in the room*
+
+- much better.
+
+And now for the final piece of the engine. LIGHTS
+
+This involves something called the Phong lighting model. 
+
+there is the Ambient light which is just the room's light color, diffuse light, which is direct light hitting a surface and secular light, which is this shiny highlights you're seeing.
+
+Every vertex has a normal, which is a vector perpendicular to its surface. Its to tell us whether a surface is facing towards the light source or not.
+
+The concept of light itself is simply multiplying colors. If a red light hits a blue surface, nothing shows, cause both colors cancel out. If red light hits a red surface, we just get red and thats essentially the gist.
+
+
+First of all, Our light sources wont be affected by light themselves, cause well...they're the bloody light. 
+
+So we need a seperate set of shaders for our light sources, one that won't have any ambient, diffuse or secular variables, not even a texture, just a color is fine.
+
+
+In JS we create a seperate class called light, which is essentially just another cube, but we use these new shaders instead.
+
+We also need a variable for out light source, its color and initial position.
+
+then we can create materials that react differently to our light source, like gold and plastic.
+
+Next we need the normals of all vertices. 
+
+models already have them in their obj file so we just extract them like the rest. But for cubes and planes we need to write them by hand.
+
+Its very simple, the front face is Z+1, the back face is Z-1, left x-1, right x+1, top y-1 and bottom y+1.
+
+For planes its just z+1, the front face.
+
+Then we just need to send all our light specifics along with the normal vector to the shaders.
+
+
+The shaders is where we will do the lighting calculations.
+
+we first need to send the world position of our vector. Which is where the hell it actually is in our world, and also its normal vector.
+
+
+And we calculate them like this...*shows code*
+
+in our fragment shader we get those 2 variables, as well as the light specifics of that object.
+
+Next we need the light direction which is where the light is coming from, and the view direction which is where the camera is facing from.
+
+we convert our normal vector to a unit vector, to make sure its always 1.
+
+Then we just need to apply the classic Phong lighting formulas, for the ambient, diffuse and specular light. The resulting color being the combination of all 3.
+
+And voila, we have lighting.
+
+I was curious to see what it would be like to have more than 1 light source, it's quite simple actually. But I wont explain it just yet, I'll leave at as a fun chanllenge for you guys to try out.
+
+The comment with the best answer will be pinned.
+
+*shows more than one light source scene*
+
+That is insane.
+
+*Music intensifies*
+
+
+Sadly this is where it all ends folks. As usual i've made the source code available, link in the description. 
+
+Hopefully you found this video useful or at the very least entertaining. 
+
+As always Thank you so much for watching. And more importantly always remember GOD LOVES YOU. catch you in the next one.
