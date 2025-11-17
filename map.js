@@ -138,6 +138,8 @@ class Map {
                 let mouseX = e.clientX - c.getBoundingClientRect().left;
                 let mouseY = e.clientY - c.getBoundingClientRect().top;
 
+                // console.log('x: ' + mouseX, 'y: ' + mouseY);
+
                 let nodeIndex = this.checkPointOnNodes(mouseX, mouseY);
 
                 if (this.currentLine.x1 && this.currentLine.y1) {

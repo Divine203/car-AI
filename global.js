@@ -22,10 +22,17 @@ let shouldDraw = true;
 
 let bestCar;
 
+let hasVisualizerBeenMade = false;
+
+let generation = 1;
+
+let visualizer;
+
 
 
 function discard() {
     localStorage.removeItem("bestBrain");
     localStorage.removeItem("bestScore");
+    localStorage.removeItem("generation");
     location.reload();
 }
