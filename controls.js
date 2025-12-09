@@ -67,6 +67,12 @@ const controls = () => {
 
             case 't':
                 discard();
+
+            case 'u':
+                generation++;
+                localStorage.setItem("bestScore", bestCar.performanceScore.toString());
+                localStorage.setItem("generation", generation.toString());
+                save();
         }
     });
 

@@ -130,7 +130,7 @@ class Car {
             }
         }
         for (let ray of this.rays.rays) {
-            if(ray.iL <= 2) {
+            if (ray.iL <= 2) {
                 this.isCarDamaged = true;
             }
         }
@@ -185,15 +185,14 @@ class Car {
             for (let car of cars) {
                 car.pos.x -= c.width;
             }
-            for (let r of rewards) {
-                r.x -= c.width;
-            }
         } else if (this.pos.x < 0) {
-            // for (let i = 0; i < mapCoordinates.length; i++) {
-            //     mapCoordinates[i].x1 += c.width;
-            //     mapCoordinates[i].x2 += c.width;
-            // }
-            // this.pos.x += c.width;
+            for (let i = 0; i < mapCoordinates.length; i++) {
+                mapCoordinates[i].x1 += c.width;
+                mapCoordinates[i].x2 += c.width;
+            }
+            for (let car of cars) {
+                car.pos.x += c.width;
+            }
         }
     }
 

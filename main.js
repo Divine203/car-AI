@@ -4,7 +4,7 @@ ctx = c.getContext('2d');
 c.width = 1400;
 c.height = 780;
 
-const N = 400;
+const N = 100;
 cars = generateCars(N);
 
 function moveEverythingDown(amount) {
@@ -28,7 +28,7 @@ function generateCars(N) {
 }
 
 if (localStorage.getItem("generation")) {
-    generation = Number(localStorage.getItem("generation"));
+    // generation = Number(localStorage.getItem("generation"));
 }
 
 if (localStorage.getItem("bestBrain")) {
@@ -37,17 +37,11 @@ if (localStorage.getItem("bestBrain")) {
             localStorage.getItem("bestBrain")
         );
         if (i != 0) {
-            NeuralNetwork.mutate(cars[i].brain, 0.2);
+            NeuralNetwork.mutate(cars[i].brain, 0.4);
         }
     }
 }
 
-function save() {
-    localStorage.setItem("bestBrain",
-        JSON.stringify(bestCar.brain)
-    );
-    location.reload();
-}
 
 
 function discard() {
@@ -86,6 +80,7 @@ const animate = () => {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, c.width, c.height);
 
+
     writeUI();
 
     map.drawMap();
@@ -96,8 +91,6 @@ const animate = () => {
 
     const allDamaged = cars.every(car => car.isCarDamaged);
     if (allDamaged) {
-        console.log("All cars damaged! Saving best brain...");
-
         localStorage.setItem("bestScore", bestCar.performanceScore.toString());
         generation++;
 

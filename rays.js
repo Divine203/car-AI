@@ -4,7 +4,7 @@ class Ray {
         this.y1 = null;
         this.x2 = null;
         this.y2 = null;
-        this.color = "yellow";
+        this.color = "#fffb009a";
         this.angle = null;
         this.l;
         this.intersectionPoint = null;
@@ -14,6 +14,7 @@ class Ray {
     drawRay(angleOffset, pAngle, pWidth, pHeight, pX, pY) { // angleOffset is in degrees
         ctx.save();
         ctx.beginPath();
+        ctx.lineWidth = 2;
         ctx.translate(pX + pWidth / 2, pY + pHeight / 2);
         ctx.rotate((angleOffset + pAngle) * Math.PI / 180);
         ctx.rect((-pWidth / 2) + (pWidth / 2), (-pHeight / 2) + (pHeight / 2), this.l, 1);
@@ -24,7 +25,7 @@ class Ray {
         // draw grey line
         if (this.intersectionPoint) {
             ctx.beginPath();
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 2;
             ctx.strokeStyle = "#161616ff";
             ctx.moveTo(this.intersectionPoint.x, this.intersectionPoint.y);
             ctx.lineTo(this.x2, this.y2);
@@ -39,11 +40,12 @@ class Rays {
         this.car = car;
 
         this.defaultRayLength = 1000;
-        this.rayLenth = 1000;
+        this.rayLenth = 100;
         this.rays = [];
 
-        this.FOV = 120; // field of view
-        this.numRays = 36;
+        this.numRays = 90;
+        this.FOV = 90; // field of view
+        
         this.rayoffsetAngles = Array.from({ length: this.numRays }, (v, k) => (k * (this.FOV / this.numRays) - (this.FOV / 2))); // [-45, ...45]
     }
 

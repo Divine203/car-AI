@@ -13,6 +13,7 @@ let globalOrigin = { x: 0, y: 0 };
 let c;
 let ctx;
 
+
 let utils;
 
 let car;
@@ -33,6 +34,13 @@ let visualizer;
 function discard() {
     localStorage.removeItem("bestBrain");
     localStorage.removeItem("bestScore");
-    localStorage.removeItem("generation");
+    localStorage.removeItem("generation");  
+    // location.reload
+}
+
+function save() {
+    localStorage.setItem("bestBrain",
+        JSON.stringify(bestCar.brain)
+    );
     location.reload();
 }
