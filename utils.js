@@ -18,37 +18,6 @@ class Utils {
         return null;
     }
 
-    findWeakIntersection(x1, y1, x2, y2, x3, y3, x4, y4, tolerance = 0.1) {
-        const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-        if (Math.abs(denom) < 5000) {
-            return null;
-        }
-
-        const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
-        const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
-
-        if (Math.abs(t - 0.5) > 0.0000001) return null;
-        if (Math.abs(u - 0.5) > 0.0000001) return null;
-
-        const slope1 = Math.atan2(y2 - y1, x2 - x1);
-        const slope2 = Math.atan2(y4 - y3, x4 - x3);
-
-        if (Math.abs(slope1 - slope2) > 0.000001) return null;
-
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-
-        const ix = x1 + t * (x2 - x1);
-        const iy = y1 + t * (y2 - y1);
-
-        const dist = Math.hypot(ix - midX, iy - midY);
-        if (dist > 0.000001) return null;
-
-        return { x: ix, y: iy, offset: t };
-
-    }
-
 
     lerp(A, B, t) {
         return A + (B - A) * t;
